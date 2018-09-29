@@ -4,7 +4,7 @@ load 'Canvas.rb'
 class DrawingTool
 	attr_accessor :canvas
 	def initialize
-		formats = ["C i i", "L i i i i", "R i i i i", "B i i c", "Q"]
+		formats = ["C i i", "L i i i i", "R i i i i", "B i i c", "B i i", "Q"]
 		@userInput = UserInputFormat.new formatList: formats, inputMessage: "Enter command: " 
 		@canvas = nil
 		@error = false
@@ -21,7 +21,7 @@ class DrawingTool
 		end
 	end
 	def print_error
-		puts "the command entered is incorrectt"
+		puts "the command entered is incorrect"
 	end
 	def clear_screen
 		Gem.win_platform? ? (system "cls") : (system "clear")
@@ -48,11 +48,17 @@ class DrawingTool
 
 		case command.code
 		when "L"
-			canvas.drawLine command.arguments
+			unless canvas.drawLine command.arguments
+				error = true
+			end
 		when "R"
-
+			unless canvas.drawSquare command.arguments
+				error = true
+			end
 		when "B"
-
+			unless canvas.fill command.arguments
+				error = true
+			end
 		end
 
 	end
