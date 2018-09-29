@@ -5,15 +5,19 @@ class Canvas
 	end
 
 	def initialize size: [10,10]
-		create(size[0], size[1])
+		create(witdth: size[0].to_i, height: size[1].to_i)
+	end
+
+	def initialize size
+		create(width: size[0].to_i, height: size[1].to_i)
 	end
 
 	def create width: 10, height: 10, borderCharacterX: "-", borderCharacterY: "|"
 		@canvas = []
+		width = width+2
+		heigth = height+2
 		for  row in 1..height
 			line = []
-			width = width+2
-			heigth = height+2
 			if row == 1 or row == height
 				for column in 1..width
 					line.push(borderCharacterX)
@@ -37,48 +41,39 @@ class Canvas
 		end
 	end
 	def validatePonit point: []
-		if @canvas.length == 0 or @canvas[0].length = 0 or point.lenght < 2
+		return false unless  point.is_a? Array
+		if (@canvas.length == 0 or @canvas[0].length == 0 or point.length != 2)
 			return false;
 		end
-		height = @canvas.length -2
-		width = @canvas[0].lenght -2
+		height = @canvas.length() -2
+		width = @canvas[0].length() -2
 		x = point[0]
 		y = point[1]
 		if x <= 0 or y <= 0
 			return false
 		end
-		if  y  > height or x > width
+		if  (y  > height or x > width)
 			return false
 		end
 
 		return true
 	end
-	def drawPoitn point: [], character: "x"
-		if validatePoint(point)
+	def drawPoint point: [], character: "x"
+		if validatePonit point: point
 			x = point[0]
 			y = point[1]
 			@canvas[y][x] = character
 		end 
 	end
 	def deletePoint point: []
-		drawPoitn point: point, character: " "
-	end
-	def isInCanvas? point: []
-		size = canvas.length-1
-		if(point[0]<size and point[1]<size and point[0]>0 and point[1]>0)
-			return true
-		end
-		return false;
-	end
-	def isPoint? point
-		if(point1.length==2 and isInCanvas? point)
+		drawPoint point: point, character: " "
 	end
 	def isLine? points: []
 		return false if points.length != 2
-		point1 = ponits[0]
+		point1 = points[0]
 		point2 = points[1]
 
-		if(isPoint? point1 and isPoint? point2)
+		if(validatePonit point: point1 and validatePonit point: point2)
 			x1 = point1[0]
 			y1 = point1[1]
 
@@ -89,7 +84,7 @@ class Canvas
 		end
 		return false
 	end
-	def drawLine initialPoint: [], endPoint: []
+	def createLine initialPoint: [], endPoint: []
 		if isLine? points:[initialPoint,endPoint]
 			x1 = initialPoint[0]
 			y1 = initialPoint[1]
@@ -98,11 +93,11 @@ class Canvas
 			y2 = endPoint[1]
 			if(x1 == x2)
 				for i in y1..y2
-					drawPoitn point:[x1,i]
+					drawPoint point:[x1,i]
 				end
 			else
 				for i in x1..x2
-					drawPoitn point:[i,y1]
+					drawPoint point:[i,y1]
 				end
 			end
 			return true
@@ -111,6 +106,6 @@ class Canvas
 		end
 	end
 	def drawLine points
-		drawLine(initialPoint:points[0..1], endPoint: points[2..3])
+		createLine(initialPoint:[points[0].to_i,points[1].to_i], endPoint: [points[2].to_i,points[3].to_i])
 	end
 end

@@ -14,6 +14,7 @@ class UserInputFormat
 		formatList.each do |format|
 			@formatList.push(Format.to_format(format))
 		end
+
 	end
 	def add_format format
 		@formatList.push(Format.to_format(format))
@@ -21,7 +22,7 @@ class UserInputFormat
 
 	def is_valid? command
 		@formatList.each do |format|
-			if(format.is_valid_command?(command))
+			if(format.is_valid_command? command )
 				return true
 			end
 		end
@@ -30,13 +31,14 @@ class UserInputFormat
 	def read
 		while true
 			print(self.inputMessage)
-			input = gets.chomp
-			command = Command.to_command(input)
-			if is_valid? command
-				return command
-			else
-				puts(@errorMessage)
+			input = gets.chomp.strip
+			if(input.length>0)
+				command = Command.to_command(input)
+				if is_valid? command
+					return command
+				end
 			end
+			puts(@errorMessage)
 		end
 	end
 end

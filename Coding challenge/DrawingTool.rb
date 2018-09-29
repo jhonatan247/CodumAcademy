@@ -21,7 +21,7 @@ class DrawingTool
 		end
 	end
 	def print_error
-		puts "the command entered is incorrect"
+		puts "the command entered is incorrectt"
 	end
 	def clear_screen
 		Gem.win_platform? ? (system "cls") : (system "clear")
@@ -31,20 +31,22 @@ class DrawingTool
 		if validate_canvas
 			@canvas.print
 		end
-		if error
+		if @error
 			print_error
-			error = false
+			@error = false
 		end
 	end
 	def execute command
 		if command.code == "C"
 			@canvas = Canvas.new command.arguments
+			return
 		end
 		unless validate_canvas
-			error = true
+			@error = true
+			return
 		end
 
-		case comand.code
+		case command.code
 		when "L"
 			canvas.drawLine command.arguments
 		when "R"
@@ -55,6 +57,6 @@ class DrawingTool
 
 	end
 	def validate_canvas
-		return @canvas == nil
+		return @canvas != nil
 	end
 end

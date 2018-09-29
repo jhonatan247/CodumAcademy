@@ -1,11 +1,14 @@
 class Command
 	attr_accessor :code, :arguments
 	def initialize code:"Q", arguments:[]
-		@code = code
-		@arguments = arguments
+		@arguments=[]
+		@code = code.upcase
+		arguments.each do |arg|
+			@arguments.push(arg)
+		end
 	end
 	def size
-		return arguments.length
+		return @arguments.length
 	end
 	def self.to_command command
 		commandData = command.split
