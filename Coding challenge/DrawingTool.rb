@@ -4,7 +4,7 @@ load 'Canvas.rb'
 class DrawingTool
 	attr_accessor :canvas
 	def initialize
-		formats = ["C i i", "L i i i i", "R i i i i", "B i i c", "B i i", "Q"]
+		formats = ["C i i", "L i i i i c", "L i i i i", "R i i i i c", "R i i i i", "B i i c", "B i i", "Q"]
 		@userInput = UserInputFormat.new formatList: formats, inputMessage: "Enter command: " 
 		@canvas = nil
 		@error = false
@@ -48,16 +48,16 @@ class DrawingTool
 
 		case command.code
 		when "L"
-			unless canvas.drawLine command.arguments
-				error = true
+			unless canvas.draw_line command.arguments
+				@error = true
 			end
 		when "R"
-			unless canvas.drawSquare command.arguments
-				error = true
+			unless canvas.draw_square command.arguments
+				@error = true
 			end
 		when "B"
 			unless canvas.fill command.arguments
-				error = true
+				@error = true
 			end
 		end
 

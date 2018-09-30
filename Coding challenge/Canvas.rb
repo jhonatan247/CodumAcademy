@@ -1,23 +1,30 @@
+load 'Point.rb'
 class Canvas 
-	attr_reader :canvas, :borderCharacterX,:borderCharacterY
+	attr_reader :canvas, :borderCharacterX,:borderCharacterY, :width, :height
 	def initialize width: 10, height: 10
 		create(witdth: witdth, height: height)
 	end
 
 	def initialize size: [10,10]
-		create(witdth: size[0].to_i, height: size[1].to_i)
+		create(witdth: size[0], height: size[1])
 	end
 
 	def initialize size
-		create(width: size[0].to_i, height: size[1].to_i)
+		create(width: size[0], height: size[1])
 	end
 
 	def create width: 10, height: 10, borderCharacterX: "-", borderCharacterY: "|"
+		width = width.to_i
+		height = height.to_i
+
+		@width = width
+		@height = height
 		@borderCharacterX = borderCharacterX
 		@borderCharacterY = borderCharacterY
 		@canvas = []
-		width = (width+2)
-		height = (height+2)
+
+		width = width+2
+		height = height+2
 		for  row in 1..height
 			line = []
 			if (row == 1 or row == height)
@@ -42,60 +49,39 @@ class Canvas
 			puts row.join
 		end
 	end
-	def validatePonit point
-		return false unless  point.is_a? Array
-		if (@canvas.length == 0 or @canvas[0].length == 0 or point.length != 2)
-			return false;
-		end
-		height = @canvas.length() -2
-		width = @canvas[0].length() -2
-		x = point[0]
-		y = point[1]
-		if (x <= 0 or y <= 0)
-			return false
-		end
-		if  (y  > height or x > width)
-			return false
-		end
+	def validate_point point
+		return false unless  point.is_a? Point
+
+		return false if (@height <= 0 or  @width <= 0)
+
+		return false if (point.x <= 0 or point.y <= 0)
+
+		return false if (point.y  > @height or point.x > @width)
+
+		return false unless point.value.length == 1
 
 		return true
 	end
-	def drawPoint point: [], character: "x"
-		if(validatePonit point and character.length == 1)
-			x = point[0]
-			y = point[1]
-			@canvas[y][x] = character
+	def draw_point point
+		if validate_point point
+			@canvas[point.y][point.x] = point.value
 		end 
 	end
-	def deletePoint point: []
-		drawPoint point: point, character: " "
-	end
-	def isLine? initialPoint: [], endPoint: []
-		if(validatePonit initialPoint and validatePonit endPoint)
-			x1 = initialPoint[0]
-			y1 = initialPoint[1]
-
-			x2 = endPoint[0]
-			y2 = endPoint[1]
-
-			return true if((x1==x2)or (y1==y2))
+	def is_line? initialPoint, endPoint
+		if (validate_point initialPoint and validate_point endPoint)
+			return true if (initialPoint.x == endPoint.x) or (initialPoint.y == endPoint.y)
 		end
 		return false
 	end
-	def createLine initialPoint: [], endPoint: []
-		if isLine? initialPoint:initialPoint, endPoint:endPoint
-			x1 = initialPoint[0]
-			y1 = initialPoint[1]
-
-			x2 = endPoint[0]
-			y2 = endPoint[1]
-			if(x1 == x2)
-				for i in y1..y2
-					drawPoint point:[x1,i]
+	def create_line initialPoint, endPoint, value
+		if is_line? initialPoint, endPoint
+			if( initialPoint.x == endPoint.x)
+				for i in initialPoint.y..endPoint.y
+					draw_point Point.new(initialPoint.x , i, value)
 				end
 			else
-				for i in x1..x2
-					drawPoint point:[i,y1]
+				for i in initialPoint.x..endPoint.x
+					draw_point Point.new(i, initialPoint.y, value)
 				end
 			end
 			return true
@@ -103,68 +89,74 @@ class Canvas
 			return false
 		end
 	end
-	def createSquare initialPoint: [], endPoint: []
-		if (validatePonit(initialPoint) and validatePonit(endPoint))
-			x1 = initialPoint[0]
-			y1 = initialPoint[1]
+	def is_square? initialPoint, endPoint
+		return true if (validate_point initialPoint and validate_point endPoint)
+		return false
+	end
+	def create_square initialPoint, endPoint, value
+		if is_square? initialPoint, endPoint
+			xIni = initialPoint.x
+			yIni = initialPoint.y
+			xEnd = endPoint.x
+			yEnd = endPoint.y
 
-			x2 = endPoint[0]
-			y2 = endPoint[1]
-			if(isLine? initialPoint:[x1, y1], endPoint:[x2, y1] and isLine? initialPoint: [x1, y2], endPoint:[x2, y2])
-				createLine(initialPoint:[x1, y1], endPoint: [x1, y2]) 
-				createLine(initialPoint:[x1, y1], endPoint: [x2, y1]) 
-				createLine(initialPoint:[x2, y1], endPoint: [x2, y2]) 
-				createLine(initialPoint:[x1, y2], endPoint: [x2, y2])
-				return true
-			end
+			create_line initialPoint, Point.new(xIni,yEnd), value
+			create_line initialPoint, Point.new(xEnd, yIni), value
+			create_line Point.new(xEnd, yIni), endPoint, value 
+			create_line Point.new(xIni, yEnd), endPoint, value
+			return true
 		end
 		return false
 	end
-	def getValue point
-		x = point[0]
-		y = point[1]
-		return @canvas[y][x]
+	def get_value point
+		return @canvas[point.y][point.x] if validate_point point
+		return nil
 	end
-	def fillArea point:[],  character: " "
-		if(validatePonit point and character.length == 1)
+	def fill_area point
+		if validate_point point
 			queue = Queue.new
 			queue << point
-			charCompare = getValue(point)
-			return true if charCompare == character
+			initValue = get_value(point)
+
+			return true if initValue == point.value
+
+			value = point.value
 			begin
 				currentPoint = queue.pop
-				drawPoint point: currentPoint, character: character
-				x = currentPoint[0]
-				y = currentPoint[1]
+				draw_point currentPoint
+				x = currentPoint.x
+				y = currentPoint.y
 
-				up = [x, y - 1]
-				queue << up if getValue(up) == charCompare
+				pointUp = Point.new(x, y - 1, value)
+				queue << pointUp if get_value(pointUp) == initValue
 					
-				down = [x, y + 1]
-				queue<< down if getValue(down) == charCompare
+				pointDown = Point.new(x, y + 1, value)
+				queue<< pointDown if get_value(pointDown) == initValue
 					
-				left = [x - 1, y]
-				queue << left if getValue(left) == charCompare
+				pointLeft = Point.new(x - 1, y, value)
+				queue << pointLeft if get_value(pointLeft) == initValue
 
-				right = [x + 1 , y]
-				queue << right if getValue(right) == charCompare
+				pointRight = Point.new(x + 1 , y, value)
+				queue << pointRight if get_value(pointRight) == initValue
+
 			end while queue.length >0
 			return true
 		end
 		return false
 	end
 	def fill args
-		point = [args[0].to_i,args[1].to_i]
-		char = ' '
-		if(args.length>2)
-			char = args[2]
-		end
-		return fillArea point:point,  character: char
+		value = ' '
+		value = args[2] if(args.length > 2)
+		return fill_area Point.new(args[0] ,args[1], value)
 	end
-	def drawSquare points
-		return createSquare(initialPoint:[points[0].to_i,points[1].to_i], endPoint: [points[2].to_i,points[3].to_i])
+	def draw_square args
+		value = 'x'
+		value = args[4] if(args.length > 4)
+		return create_square Point.new(args[0] ,args[1]), Point.new(args[2] ,args[3]), value
 	end
-	def drawLine points
-		return createLine(initialPoint:[points[0].to_i,points[1].to_i], endPoint: [points[2].to_i,points[3].to_i])
+	def draw_line args
+		value = 'x'
+		value = args[4] if(args.length > 4)
+		return create_line Point.new(args[0] ,args[1]), Point.new(args[2] ,args[3]), value
 	end
 end
