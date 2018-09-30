@@ -2,17 +2,17 @@ load 'Format.rb'
 class UserInputFormat
 	attr_accessor :formatList, :inputMessage, :errorMessage
 	def initialize formatList: []
-		createFormats(formatList)
+		create_formats(formatList)
 	end
 	def initialize formatList: [], inputMessage: "Insert text format", errorMessage: "the format entered is incorrect" 
-		createFormats(formatList)
+		create_formats(formatList)
 		@inputMessage = inputMessage
 		@errorMessage = errorMessage
 	end
-	def createFormats formatList
+	def create_formats formatList
 		@formatList = []
 		formatList.each do |format|
-			@formatList.push(Format.to_format(format))
+			add_format format
 		end
 
 	end
