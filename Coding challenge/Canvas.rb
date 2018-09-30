@@ -76,11 +76,15 @@ class Canvas
 	def create_line initialPoint, endPoint, value
 		if is_line? initialPoint, endPoint
 			if( initialPoint.x == endPoint.x)
-				for i in initialPoint.y..endPoint.y
+				range = initialPoint.y..endPoint.y
+				range = endPoint.y..initialPoint.y if endPoint.y < initialPoint.y
+				for i in range
 					draw_point Point.new(initialPoint.x , i, value)
 				end
 			else
-				for i in initialPoint.x..endPoint.x
+				range = initialPoint.x..endPoint.x
+				range = endPoint.x..initialPoint.x if endPoint.x < initialPoint.x
+				for i in range
 					draw_point Point.new(i, initialPoint.y, value)
 				end
 			end
